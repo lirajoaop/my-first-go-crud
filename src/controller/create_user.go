@@ -8,11 +8,11 @@ import (
 	"github.com/lirajoaop/my-first-go-crud/src/configuration/validation"
 	"github.com/lirajoaop/my-first-go-crud/src/controller/model/request"
 	"github.com/lirajoaop/my-first-go-crud/src/model"
-	"github.com/lirajoaop/my-first-go-crud/src/model/service"
+	"github.com/lirajoaop/my-first-go-crud/src/view"
 	"go.uber.org/zap"
 )
 
-func CreateUser(c *gin.Context) {
+func (uc *userControllerInterface) CreateUser(c *gin.Context) {
 	logger.Info("Init CreateUser controller",
 		zap.String("journey", "createUser"),
 	)
@@ -35,9 +35,7 @@ func CreateUser(c *gin.Context) {
 		userRequest.Age,
 	)
 
-	service := service.NewUserDomainService()
-
-	if err := service.CreateUser(domain); err != nil {
+	if err := uc.service.CreateUser(domain); err != nil {
 		c.JSON(err.Code, err)
 		return
 	}
@@ -45,5 +43,7 @@ func CreateUser(c *gin.Context) {
 	logger.Info("User created successfully",
 		zap.String("journey", "createUser"))
 
-	c.String(http.StatusOK, "")
+	c.JSON(http.StatusOK, view.ConvertDomainToResponse(
+		domain,
+	))
 }
