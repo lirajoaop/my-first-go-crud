@@ -8,10 +8,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/lirajoaop/my-first-go-crud/src/configuration/database/mongodb"
 	"github.com/lirajoaop/my-first-go-crud/src/configuration/logger"
-	"github.com/lirajoaop/my-first-go-crud/src/controller"
 	"github.com/lirajoaop/my-first-go-crud/src/controller/routes"
-	"github.com/lirajoaop/my-first-go-crud/src/model/repository"
-	"github.com/lirajoaop/my-first-go-crud/src/model/service"
 )
 
 func main() {
@@ -28,10 +25,7 @@ func main() {
 		return
 	}
 
-	//Init dependencies
-	repo := repository.NewUserRepository(database)
-	service := service.NewUserDomainService(repo)
-	userController := controller.NewUserControllerInterface(service)
+	userController := initDependencies(database)
 
 	router := gin.Default()
 
