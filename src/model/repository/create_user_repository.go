@@ -26,7 +26,7 @@ func (ur *userRepository) CreateUser(
 
 	result, err := collection.InsertOne(context.Background(), value)
 	if err != nil {
-		logger.Error("Error trying create user",
+		logger.Error("Error trying to create user",
 			err,
 			zap.String("journey", "createUser"),
 		)
