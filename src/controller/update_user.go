@@ -2,13 +2,14 @@ package controller
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lirajoaop/my-first-go-crud/src/configuration/logger"
+	"github.com/lirajoaop/my-first-go-crud/src/configuration/rest_err"
 	"github.com/lirajoaop/my-first-go-crud/src/configuration/validation"
 	"github.com/lirajoaop/my-first-go-crud/src/controller/model/request"
 	"github.com/lirajoaop/my-first-go-crud/src/model"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.uber.org/zap"
 )
 
@@ -18,9 +19,7 @@ func (uc *userControllerInterface) UpdateUser(c *gin.Context) {
 	)
 	var userRequest request.UserUpdateRequest
 
-	userId := c.Param("userId")
-	if err := c.ShouldBindJSON(&userRequest); err != nil ||
-		strings.TrimSpace(userId) == "" {
+	if err := c.ShouldBindJSON(&userRequest); err != nil {
 		logger.Error("Error trying to validate user info", err,
 			zap.String("journey", "updateUser"),
 		)
@@ -28,6 +27,12 @@ func (uc *userControllerInterface) UpdateUser(c *gin.Context) {
 
 		c.JSON(errRest.Code, errRest)
 		return
+	}
+
+	userId := c.Param("userId")
+	if _, err := primitive.ObjectIDFromHex(userId); err != nil {
+		errRest := rest_err.NewBadRequestError("Invalid userId, must be a hex value")
+		c.JSON(errRest.Code, errRest)
 	}
 
 	domain := model.NewUserUpdateDomain(

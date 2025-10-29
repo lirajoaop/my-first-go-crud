@@ -9,6 +9,7 @@ import (
 	"github.com/lirajoaop/my-first-go-crud/src/model"
 	"github.com/lirajoaop/my-first-go-crud/src/model/repository/entity/converter"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.uber.org/zap"
 )
 
@@ -24,9 +25,12 @@ func (ur *userRepository) UpdateUser(
 	collection := ur.databaseConnection.Collection(collection_name)
 
 	value := converter.ConvertDomainToEntity(userDomain)
-	filter := bson.M{"_id": userId}
+	userIdHex, _ := primitive.ObjectIDFromHex(userId)
 
-	_, err := collection.UpdateOne(context.Background(), filter, value)
+	filter := bson.D{{Key: "_id", Value: userIdHex}}
+	update := bson.D{{Key: "$set", Value: value}}
+
+	_, err := collection.UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		logger.Error("Error trying to update user",
 			err,
@@ -37,7 +41,7 @@ func (ur *userRepository) UpdateUser(
 
 	logger.Info(
 		"updateUser repository executed successfully",
-		zap.String("userId", value.ID.Hex()),
+		zap.String("userId", userId),
 		zap.String("journey", "updateUser"),
 	)
 
